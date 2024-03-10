@@ -1,0 +1,18 @@
+#!/bin/bash
+
+winepath=$1
+
+gamepath=$2
+
+cd $winepath
+
+#get the address code from the user.reg needed for a new .reg file
+winecode=$(cat user.reg | grep ";; All keys relative to REGISTRY" | sed -r 's/;; All keys relative to REGISTRY\\\\User\\\\//')
+
+cd $gamepath
+#make a .reg file with all dlls under address [HKEY_USERS\\winecode\\Software\Wine\DllOverrides]
+echo "Windows Registry Editor Version 5.00" > test.reg
+echo "[HKEY_USERS\\$winecode\\Software\Wine\DllOverrides]" >> test.reg
+
+find . -name '*.dll' -printf '%f\n' | sed 's/.dll//' | sed 's/.*/"*&"="native,builtin"/' >> test.reg
+
